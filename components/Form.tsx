@@ -24,7 +24,7 @@ const CIForm = () => {
 					<Row>
 						<Form.Group as={Col} controlId='label'>
 							<Input
-								id='standard-adornment-amount'
+								id='principle_amount'
 								startAdornment={
 									<InputAdornment position='start'>$</InputAdornment>
 								}
@@ -34,7 +34,7 @@ const CIForm = () => {
 							<RadioGroup
 								row
 								name='row-radio-buttons-group'
-								defaultValue='yearly'>
+								defaultValue='yearly' id='frequency'>
 								<FormControlLabel
 									value='monthly'
 									control={<Radio />}
@@ -56,7 +56,7 @@ const CIForm = () => {
 					Number of years you want to Invest
 				</InputLabel>
 				<Input
-					id='standard-amount1'
+					id='no_of_yrs_invest'
 					type='number'
 					inputProps={{ min: 1, max: 100 }}
 					defaultValue={1}
@@ -69,7 +69,7 @@ const CIForm = () => {
 					Number of years you want to stay Invested for
 				</InputLabel>
 				<Input
-					id='standard-amount2'
+					id='no_of_yrs_stay'
 					type='number'
 					inputProps={{ min: 1, max: 100 }}
 					defaultValue={1}
@@ -79,10 +79,10 @@ const CIForm = () => {
 
 			<Form.Group className='mb-3' controlId='formGridAddress1'>
 				<InputLabel htmlFor='standard-adornment-amount'>
-					Annual Rate of returns to be
+					Annual Rate of Interest
 				</InputLabel>
 				<Input
-					id='standard-amount'
+					id='rate'
 					type='number'
 					inputProps={{ step: 0.1, maxLength: 7, min: 0 }}
 					required={true}
