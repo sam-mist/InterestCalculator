@@ -10,7 +10,38 @@ import Row from 'react-bootstrap/Row';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { useState } from 'react';
 const CIForm = () => {
+	const [validYearsHold, setValidYearsHold] = useState(true);
+	const [principleAmount, setPrincipleAmount] = useState(0);
+	const [yearsInvestment, setYearsInvestment] = useState(1);
+	const [yearsHold, setYearsHold] = useState(1);
+	const [rate, setRate] = useState(5);
+	const calculateInterest = () => {};
+	const handleRateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		let rate = event.target.value;
+		let [number, decimal] = rate.split('.');
+		if (number.length > 5) {
+			number = number.substring(0, number.length - 1);
+		}
+		if (!!decimal && decimal.length > 3) {
+			decimal = decimal.substring(0, decimal.length - 1);
+		}
+		setRate(+(number + '.' + (decimal || 0)));
+	};
+	const handleYearsStayChange = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		setYearsHold(+event.target.value.substring(0, 2));
+	};
+	const handleYearsInvest = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setYearsInvestment(+event.target.value.substring(0, 2));
+	};
+	const handlePrincipleAmount = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		setPrincipleAmount(+event.target.value);
+	};
 	return (
 		<Form className='form'>
 			<Row className='mb-3'>
@@ -28,13 +59,16 @@ const CIForm = () => {
 								startAdornment={
 									<InputAdornment position='start'>$</InputAdornment>
 								}
+								inputProps={{ value: principleAmount }}
+								onChange={handlePrincipleAmount}
 							/>
 						</Form.Group>
-						<Form.Group as={Col} controlId='formGridPassword'>
+						<Form.Group as={Col} controlId='frequency'>
 							<RadioGroup
 								row
 								name='row-radio-buttons-group'
-								defaultValue='yearly' id='frequency'>
+								defaultValue='yearly'
+								id='frequency'>
 								<FormControlLabel
 									value='monthly'
 									control={<Radio />}
@@ -58,9 +92,9 @@ const CIForm = () => {
 				<Input
 					id='no_of_yrs_invest'
 					type='number'
-					inputProps={{ min: 1, max: 100 }}
-					defaultValue={1}
+					inputProps={{ min: 1, max: 100, value: yearsInvestment }}
 					startAdornment={<InputAdornment position='start'>yrs</InputAdornment>}
+					onChange={handleYearsInvest}
 				/>
 			</Form.Group>
 
@@ -71,8 +105,8 @@ const CIForm = () => {
 				<Input
 					id='no_of_yrs_stay'
 					type='number'
-					inputProps={{ min: 1, max: 100 }}
-					defaultValue={1}
+					inputProps={{ min: 1, max: 100, value: yearsHold }}
+					onChange={handleYearsStayChange}
 					startAdornment={<InputAdornment position='start'>yrs</InputAdornment>}
 				/>
 			</Form.Group>
@@ -84,9 +118,9 @@ const CIForm = () => {
 				<Input
 					id='rate'
 					type='number'
-					inputProps={{ step: 0.1, maxLength: 7, min: 0 }}
+					inputProps={{ step: 0.1, maxLength: 7, min: 0, value: rate }}
+					onChange={handleRateChange}
 					required={true}
-					defaultValue={5.0}
 					startAdornment={<InputAdornment position='start'>%</InputAdornment>}
 				/>
 			</Form.Group>
@@ -95,7 +129,8 @@ const CIForm = () => {
 				name='Calculate'
 				properties={{
 					variant: 'contained',
-					endIcon: <CalculateIcon></CalculateIcon>,
+					endIcon: <CalculateIcon />,
+					onClick: calculateInterest,
 				}}
 			/>
 		</Form>
