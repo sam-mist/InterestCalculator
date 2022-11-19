@@ -17,7 +17,7 @@ const CIHeader = () => {
 	return (
 		<>
 			<Card
-				backgroundColor='#8BD7D2'
+				bgGradient={'linear-gradient(to right,#00b09b, #96c93d)'}
 				borderTopLeftRadius='75'
 				variant='elevated'
 				align='center'>
