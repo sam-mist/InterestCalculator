@@ -66,7 +66,7 @@ const CIHeader = () => {
 							</Slide>
 							<Fade delay={1e3} cascade damping={1e-1}>
 								<Text pt='2' fontSize='md'>
-									"Interest on interest," or the power of compound interest, is
+									Interest on interest, or the power of compound interest, is
 									believed to have originated in 17th-century Italy. It will
 									make a sum grow faster than simple interest, which is
 									calculated only on the principal amount.
