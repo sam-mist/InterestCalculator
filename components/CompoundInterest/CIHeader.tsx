@@ -8,6 +8,7 @@ import {
 	CardHeader,
 	CardBody,
 	StackDivider,
+	Image,
 } from '@chakra-ui/react';
 import Typewriter from 'typewriter-effect';
 import { Fade, Slide } from 'react-awesome-reveal';
@@ -15,7 +16,11 @@ import { Fade, Slide } from 'react-awesome-reveal';
 const CIHeader = () => {
 	return (
 		<>
-			<Card variant='elevated' align='center'>
+			<Card
+				backgroundColor='#8BD7D2'
+				borderTopLeftRadius='75'
+				variant='elevated'
+				align='center'>
 				<CardHeader>
 					<Heading>
 						<Typewriter
@@ -69,6 +74,31 @@ const CIHeader = () => {
 									believed to have originated in 17th-century Italy. It will
 									make a sum grow faster than simple interest, which is
 									calculated only on the principal amount.
+								</Text>
+							</Fade>
+						</Box>
+						<Box>
+							<Slide>
+								<Heading size='md' textTransform='uppercase'>
+									Formula
+								</Heading>
+							</Slide>
+							<Fade delay={1e3} cascade damping={1e-1}>
+								<Image pt='2' fontSize='md' src='/formula.png' alt='Formula' />
+								<Text pt='2' fontSize='md'>
+									A = final amount
+								</Text>
+								<Text pt='2' fontSize='md'>
+									P = initial principal balance{' '}
+								</Text>
+								<Text pt='2' fontSize='md'>
+									r = interest rate
+								</Text>
+								<Text pt='2' fontSize='md'>
+									n = number of times interest applied per time period
+								</Text>
+								<Text pt='2' fontSize='md'>
+									t = number of time periods elapsed
 								</Text>
 							</Fade>
 						</Box>
