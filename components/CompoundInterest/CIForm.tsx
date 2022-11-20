@@ -31,14 +31,18 @@ const CIForm = () => {
 	const [investYears, setInvestYears] = useState(10);
 	const [stayYears, setStayYears] = useState(10);
 	const [principleAmount, setPrincipleAmount] = useState(0);
+	const [rate, setRate] = useState(1.54);
 	const toast = useToast();
 	let { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
 		useNumberInput({
 			step: 0.01,
-			defaultValue: 1.53,
+			value: rate,
 			min: 1,
 			max: 6,
 			precision: 2,
+			onChange(valueAsString, valueAsNumber) {
+				setRate(valueAsNumber);
+			},
 		});
 
 	const triggerYearsExceedToast = () => {
@@ -126,6 +130,10 @@ const CIForm = () => {
 	const stayDec = stayInputParams.getDecrementButtonProps();
 
 	const [value, setValue] = React.useState('2');
+	const handleOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		console.log(principleAmount, investYears, stayYears, value, rate);
+	};
 	return (
 		<>
 			<Card align='center'>
@@ -135,7 +143,7 @@ const CIForm = () => {
 					</Slide>
 				</CardHeader>
 				<CardBody>
-					<form>
+					<form onSubmit={handleOnSubmit}>
 						<FormControl>
 							<VStack spacing={8}>
 								<Grid templateColumns='repeat(3, 1fr)' gap={6}>
