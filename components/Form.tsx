@@ -11,7 +11,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { useState } from 'react';
-const CIForm = () => {
+const CILForm = () => {
 	const [validYearsHold, setValidYearsHold] = useState(true);
 	const [principleAmount, setPrincipleAmount] = useState(0);
 	const [yearsInvestment, setYearsInvestment] = useState(1);
@@ -136,4 +136,4 @@ const CIForm = () => {
 		</Form>
 	);
 };
-export default CIForm;
+export default CILForm;
