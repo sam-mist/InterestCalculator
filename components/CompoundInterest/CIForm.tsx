@@ -19,6 +19,9 @@ import {
 	RadioGroup,
 	VStack,
 	useToast,
+	NumberDecrementStepper,
+	NumberIncrementStepper,
+	NumberInputStepper,
 } from '@chakra-ui/react';
 import React from 'react';
 import CustomButton from '../Button';
@@ -27,6 +30,7 @@ import { duration } from '@mui/material';
 const CIForm = () => {
 	const [investYears, setInvestYears] = useState(10);
 	const [stayYears, setStayYears] = useState(10);
+	const [principleAmount, setPrincipleAmount] = useState(0);
 	const toast = useToast();
 	let { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
 		useNumberInput({
@@ -41,6 +45,15 @@ const CIForm = () => {
 		toast({
 			title: 'Info',
 			description: 'The year must be between 1 and 100',
+			status: 'info',
+			duration: 3000,
+			isClosable: true,
+		});
+	};
+	const triggerPAInvalidToast = () => {
+		toast({
+			title: 'Info',
+			description: "Principal Amount can't be less than zero",
 			status: 'info',
 			duration: 3000,
 			isClosable: true,
@@ -94,6 +107,20 @@ const CIForm = () => {
 		},
 	});
 
+	const handlePrincipleAmountChange = (
+		valueAsString: string,
+		valueAsNumber: number
+	) => {
+		if (!isNaN(valueAsNumber)) {
+			if (valueAsNumber < 0) {
+				triggerPAInvalidToast();
+				setPrincipleAmount(0);
+			} else {
+				setPrincipleAmount(valueAsNumber);
+			}
+		}
+	};
+
 	const stayInp = stayInputParams.getInputProps();
 	const stayInc = stayInputParams.getIncrementButtonProps();
 	const stayDec = stayInputParams.getDecrementButtonProps();
@@ -118,8 +145,15 @@ const CIForm = () => {
 									<Fade delay={1e3} cascade damping={1e-1}>
 										<InputGroup>
 											<InputLeftAddon>₹</InputLeftAddon>
-											<NumberInput>
+											<NumberInput
+												allowMouseWheel
+												onChange={handlePrincipleAmountChange}
+												value={principleAmount}>
 												<NumberInputField />
+												<NumberInputStepper>
+													<NumberIncrementStepper />
+													<NumberDecrementStepper />
+												</NumberInputStepper>
 											</NumberInput>
 										</InputGroup>
 									</Fade>
