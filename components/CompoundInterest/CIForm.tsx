@@ -18,10 +18,16 @@ import {
 	Radio,
 	RadioGroup,
 	VStack,
+	useToast,
 } from '@chakra-ui/react';
 import React from 'react';
 import CustomButton from '../Button';
+import { useState } from 'react';
+import { duration } from '@mui/material';
 const CIForm = () => {
+	const [investYears, setInvestYears] = useState(10);
+	const [stayYears, setStayYears] = useState(10);
+	const toast = useToast();
 	let { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
 		useNumberInput({
 			step: 0.01,
@@ -31,15 +37,37 @@ const CIForm = () => {
 			precision: 2,
 		});
 
+	const triggerYearsExceedToast = () => {
+		toast({
+			title: 'Info',
+			description: 'The year must be between 1 and 100',
+			status: 'info',
+			duration: 3000,
+			isClosable: true,
+		});
+	};
 	const inc = getIncrementButtonProps();
 	const dec = getDecrementButtonProps();
 	const input = getInputProps();
-
 	let investInputParams = useNumberInput({
 		step: 1,
-		defaultValue: 10,
+		value: investYears,
 		min: 1,
-		precision: 2,
+		max: 100,
+		onChange(valueAsString, valueAsNumber) {
+			console.log(valueAsNumber);
+			if (!isNaN(valueAsNumber)) {
+				if (valueAsString.length > 3) {
+					triggerYearsExceedToast();
+					setInvestYears(+valueAsString.substring(0, 3));
+				} else if (valueAsNumber > 100) {
+					triggerYearsExceedToast();
+					setInvestYears(+valueAsString.substring(0, 2));
+				} else {
+					setInvestYears(valueAsNumber);
+				}
+			}
+		},
 	});
 
 	const investInp = investInputParams.getInputProps();
@@ -48,9 +76,22 @@ const CIForm = () => {
 
 	let stayInputParams = useNumberInput({
 		step: 1,
-		defaultValue: 10,
+		value: stayYears,
 		min: 1,
-		precision: 2,
+		max: 100,
+		onChange(valueAsString, valueAsNumber) {
+			if (!isNaN(valueAsNumber)) {
+				if (valueAsString.length > 3) {
+					triggerYearsExceedToast();
+					setStayYears(+valueAsString.substring(0, 3));
+				} else if (valueAsNumber > 100) {
+					triggerYearsExceedToast();
+					setStayYears(+valueAsString.substring(0, 2));
+				} else {
+					setStayYears(valueAsNumber);
+				}
+			}
+		},
 	});
 
 	const stayInp = stayInputParams.getInputProps();
