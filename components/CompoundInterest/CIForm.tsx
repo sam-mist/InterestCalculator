@@ -25,14 +25,17 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 import CustomButton from '../Button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { duration } from '@mui/material';
 const CIForm = () => {
-	const [investYears, setInvestYears] = useState(10);
-	const [stayYears, setStayYears] = useState(10);
-	const [principleAmount, setPrincipleAmount] = useState(0);
-	const [rate, setRate] = useState(1.54);
+	const [investYears, setInvestYears] = useState('10');
+	const [stayYears, setStayYears] = useState('10');
+	const [principleAmount, setPrincipleAmount] = useState('1000');
+	const [rate, setRate] = useState('5.00');
 	const toast = useToast();
+	const [overallAmount, setOverallAmount] = useState(0);
+	const [displayResult, setDisplayResult] = useState(false);
+	const [value, setValue] = React.useState('2');
 
 	const triggerYearsExceedToast = () => {
 		toast({
@@ -46,7 +49,7 @@ const CIForm = () => {
 	const triggerPAInvalidToast = () => {
 		toast({
 			title: 'Info',
-			description: "Enter a value between 0 and 10,00,00,000",
+			description: 'Enter a value between 0 and 10,00,00,000',
 			status: 'info',
 			duration: 3000,
 			isClosable: true,
@@ -62,11 +65,9 @@ const CIForm = () => {
 		} else if (valueAsNumber < 0 || valueAsNumber > 100000000) {
 			triggerPAInvalidToast();
 		} else {
-			setPrincipleAmount(valueAsNumber);
+			setPrincipleAmount(valueAsString);
 		}
 	};
-
-	const [value, setValue] = React.useState('2');
 
 	let investInputParams = useNumberInput({
 		step: 1,
@@ -76,11 +77,11 @@ const CIForm = () => {
 			if (isNaN(valueAsNumber)) {
 				setInvestYears(valueAsString);
 			} else if (valueAsNumber > 0 && valueAsNumber < 101) {
-				setInvestYears(valueAsNumber);
+				setInvestYears(valueAsString);
 			} else {
 				triggerYearsExceedToast();
 			}
-		}
+		},
 	});
 
 	const investInp = investInputParams.getInputProps();
@@ -95,11 +96,11 @@ const CIForm = () => {
 			if (isNaN(valueAsNumber)) {
 				setStayYears(valueAsString);
 			} else if (valueAsNumber > 0 && valueAsNumber < 101) {
-				setStayYears(valueAsNumber);
+				setStayYears(valueAsString);
 			} else {
 				triggerYearsExceedToast();
 			}
-		}
+		},
 	});
 
 	const stayInp = stayInputParams.getInputProps();
@@ -118,7 +119,7 @@ const CIForm = () => {
 				if (value[0].length < 6 && (!value[1] || value[1].length < 3))
 					setRate(valueAsString);
 			}
-		}
+		},
 	});
 
 	const rateInp = roiInputParams.getInputProps();
@@ -130,13 +131,17 @@ const CIForm = () => {
 		console.log(principleAmount, investYears, stayYears, value, rate);
 		let amount = 0;
 		let frequency = value === '1' ? 12 : 1;
-		for (let i = 1; i <= investYears * frequency; i++) {
-			amount += principleAmount;
-			let interest = (amount * rate) / (100*frequency);
+		for (let i = 1; i <= +investYears * frequency; i++) {
+			amount += +principleAmount;
+			let interest = (amount * +rate) / (100 * frequency);
 			amount += interest;
 		}
-		amount *= Math.pow((1 + (rate / (100* frequency))), frequency * (stayYears - investYears))
-		console.log(amount)
+		amount *= Math.pow(
+			1 + +rate / (100 * frequency),
+			frequency * (+stayYears - +investYears)
+		);
+		setOverallAmount(amount);
+		setDisplayResult(true);
 	};
 	return (
 		<>
@@ -171,7 +176,11 @@ const CIForm = () => {
 										</InputGroup>
 									</Fade>
 									<Fade delay={1e3} cascade damping={1e-1}>
-										<RadioGroup value={value} onChange={(event) => { setValue(event) }}>
+										<RadioGroup
+											value={value}
+											onChange={(event) => {
+												setValue(event);
+											}}>
 											<HStack>
 												<Radio value='1'>Monthly</Radio>
 												<Radio value='2'>Yearly</Radio>
@@ -227,6 +236,15 @@ const CIForm = () => {
 										type: 'submit',
 									}}
 								/>
+								{displayResult ? (
+									<FormHelperText>
+										<h5>
+											{'Compounded Amount is ' + overallAmount.toFixed(3)}
+										</h5>
+									</FormHelperText>
+								) : (
+									''
+								)}
 							</VStack>
 						</FormControl>
 					</form>
