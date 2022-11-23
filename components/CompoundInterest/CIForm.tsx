@@ -25,25 +25,17 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 import CustomButton from '../Button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { duration } from '@mui/material';
 const CIForm = () => {
-	const [investYears, setInvestYears] = useState(10);
-	const [stayYears, setStayYears] = useState(10);
-	const [principleAmount, setPrincipleAmount] = useState(0);
-	const [rate, setRate] = useState(1.54);
+	const [investYears, setInvestYears] = useState('10');
+	const [stayYears, setStayYears] = useState('10');
+	const [principleAmount, setPrincipleAmount] = useState('1000');
+	const [rate, setRate] = useState('5.00');
 	const toast = useToast();
-	let { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
-		useNumberInput({
-			step: 0.01,
-			value: rate,
-			min: 1,
-			max: 6,
-			precision: 2,
-			onChange(valueAsString, valueAsNumber) {
-				setRate(valueAsNumber);
-			},
-		});
+	const [overallAmount, setOverallAmount] = useState(0);
+	const [displayResult, setDisplayResult] = useState(false);
+	const [value, setValue] = React.useState('2');
 
 	const triggerYearsExceedToast = () => {
 		toast({
@@ -57,32 +49,37 @@ const CIForm = () => {
 	const triggerPAInvalidToast = () => {
 		toast({
 			title: 'Info',
-			description: "Principal Amount can't be less than zero",
+			description: 'Enter a value between 0 and 10,00,00,000',
 			status: 'info',
 			duration: 3000,
 			isClosable: true,
 		});
 	};
-	const inc = getIncrementButtonProps();
-	const dec = getDecrementButtonProps();
-	const input = getInputProps();
+
+	const handlePrincipleAmountChange = (
+		valueAsString: string,
+		valueAsNumber: number
+	) => {
+		if (isNaN(valueAsNumber)) {
+			setPrincipleAmount(valueAsString);
+		} else if (valueAsNumber < 0 || valueAsNumber > 100000000) {
+			triggerPAInvalidToast();
+		} else {
+			setPrincipleAmount(valueAsString);
+		}
+	};
+
 	let investInputParams = useNumberInput({
 		step: 1,
+		isRequired: true,
 		value: investYears,
-		min: 1,
-		max: 100,
 		onChange(valueAsString, valueAsNumber) {
-			console.log(valueAsNumber);
-			if (!isNaN(valueAsNumber)) {
-				if (valueAsString.length > 3) {
-					triggerYearsExceedToast();
-					setInvestYears(+valueAsString.substring(0, 3));
-				} else if (valueAsNumber > 100) {
-					triggerYearsExceedToast();
-					setInvestYears(+valueAsString.substring(0, 2));
-				} else {
-					setInvestYears(valueAsNumber);
-				}
+			if (isNaN(valueAsNumber)) {
+				setInvestYears(valueAsString);
+			} else if (valueAsNumber > 0 && valueAsNumber < 101) {
+				setInvestYears(valueAsString);
+			} else {
+				triggerYearsExceedToast();
 			}
 		},
 	});
@@ -94,45 +91,57 @@ const CIForm = () => {
 	let stayInputParams = useNumberInput({
 		step: 1,
 		value: stayYears,
-		min: 1,
-		max: 100,
+		isRequired: true,
 		onChange(valueAsString, valueAsNumber) {
-			if (!isNaN(valueAsNumber)) {
-				if (valueAsString.length > 3) {
-					triggerYearsExceedToast();
-					setStayYears(+valueAsString.substring(0, 3));
-				} else if (valueAsNumber > 100) {
-					triggerYearsExceedToast();
-					setStayYears(+valueAsString.substring(0, 2));
-				} else {
-					setStayYears(valueAsNumber);
-				}
+			if (isNaN(valueAsNumber)) {
+				setStayYears(valueAsString);
+			} else if (valueAsNumber > 0 && valueAsNumber < 101) {
+				setStayYears(valueAsString);
+			} else {
+				triggerYearsExceedToast();
 			}
 		},
 	});
-
-	const handlePrincipleAmountChange = (
-		valueAsString: string,
-		valueAsNumber: number
-	) => {
-		if (!isNaN(valueAsNumber)) {
-			if (valueAsNumber < 0) {
-				triggerPAInvalidToast();
-				setPrincipleAmount(0);
-			} else {
-				setPrincipleAmount(valueAsNumber);
-			}
-		}
-	};
 
 	const stayInp = stayInputParams.getInputProps();
 	const stayInc = stayInputParams.getIncrementButtonProps();
 	const stayDec = stayInputParams.getDecrementButtonProps();
 
-	const [value, setValue] = React.useState('2');
+	let roiInputParams = useNumberInput({
+		step: 0.05,
+		value: rate,
+		isRequired: true,
+		onChange(valueAsString, valueAsNumber) {
+			if (isNaN(valueAsNumber)) {
+				setRate(valueAsString);
+			} else {
+				let value = valueAsString.split('.');
+				if (value[0].length < 6 && (!value[1] || value[1].length < 3))
+					setRate(valueAsString);
+			}
+		},
+	});
+
+	const rateInp = roiInputParams.getInputProps();
+	const rateInc = roiInputParams.getIncrementButtonProps();
+	const rateDec = roiInputParams.getDecrementButtonProps();
+
 	const handleOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		console.log(principleAmount, investYears, stayYears, value, rate);
+		let amount = 0;
+		let frequency = value === '1' ? 12 : 1;
+		for (let i = 1; i <= +investYears * frequency; i++) {
+			amount += +principleAmount;
+			let interest = (amount * +rate) / (100 * frequency);
+			amount += interest;
+		}
+		amount *= Math.pow(
+			1 + +rate / (100 * frequency),
+			frequency * (+stayYears - +investYears)
+		);
+		setOverallAmount(amount);
+		setDisplayResult(true);
 	};
 	return (
 		<>
@@ -155,6 +164,7 @@ const CIForm = () => {
 											<InputLeftAddon>₹</InputLeftAddon>
 											<NumberInput
 												allowMouseWheel
+												isRequired={true}
 												onChange={handlePrincipleAmountChange}
 												value={principleAmount}>
 												<NumberInputField />
@@ -166,7 +176,11 @@ const CIForm = () => {
 										</InputGroup>
 									</Fade>
 									<Fade delay={1e3} cascade damping={1e-1}>
-										<RadioGroup value={value} onChange={setValue}>
+										<RadioGroup
+											value={value}
+											onChange={(event) => {
+												setValue(event);
+											}}>
 											<HStack>
 												<Radio value='1'>Monthly</Radio>
 												<Radio value='2'>Yearly</Radio>
@@ -208,9 +222,9 @@ const CIForm = () => {
 									</Slide>
 									<Fade delay={1e3} cascade damping={1e-1}>
 										<HStack maxW='320px'>
-											<Button {...inc}>+</Button>
-											<Input {...input} />
-											<Button {...dec}>-</Button>
+											<Button {...rateInc}>+</Button>
+											<Input {...rateInp} />
+											<Button {...rateDec}>-</Button>
 										</HStack>
 									</Fade>
 								</Grid>
@@ -222,6 +236,15 @@ const CIForm = () => {
 										type: 'submit',
 									}}
 								/>
+								{displayResult ? (
+									<FormHelperText>
+										<h5>
+											{'Compounded Amount is ' + overallAmount.toFixed(3)}
+										</h5>
+									</FormHelperText>
+								) : (
+									''
+								)}
 							</VStack>
 						</FormControl>
 					</form>
